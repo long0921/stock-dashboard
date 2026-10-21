@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>全球股市实时监控看板</title>
+<link rel="stylesheet" href="assets/css/dashboard.css">
+</head>
+<body>
+
+<!-- ======================= 顶栏 ======================= -->
+<header class="topbar">
+  <div class="brand">
+    <h1>全球股市实时看板</h1>
+    <span class="sub">A股 · 美股 · 韩国 · 日本 · 港股</span>
+  </div>
+
+  <div class="clock" id="clock-time">--:--:--</div>
+  <div class="market-chips" id="market-chips"></div>
+
+  <div class="topbar-right">
+    <div class="market-chips" id="health-bar"></div>
+    <span class="status-text" id="source-hint"></span>
+    <span class="status-text" id="last-update">--</span>
+    <span class="status-text" id="next-refresh">--</span>
+    <button class="btn" id="auto-refresh">自动刷新：开</button>
+    <button class="btn" id="btn-refresh">立即刷新</button>
+  </div>
+</header>
+
+<main class="layout">
+
+  <!-- ============ 板块 1：全球指数 ============ -->
+  <section class="panel span-12">
+    <div class="panel-head">
+      <span class="panel-title">全球指数</span>
+      <span class="panel-sub">点击任一指数查看 K 线 / 分时 · 交易时段每 5 秒刷新，休市后降为 5 分钟</span>
+    </div>
+    <div class="panel-body">
+      <div class="index-grid" id="indices-container">
+        <div class="empty">正在加载行情…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 板块 2：主力资金净流入 ============ -->
+  <section class="panel span-6">
+    <div class="panel-head">
+      <span class="panel-title">板块主力资金净流入</span>
+      <div class="tabs" id="flow-type"></div>
+      <div class="tabs" id="flow-dir">
+        <button data-dir="1" class="active">流入榜</button>
+        <button data-dir="0">流出榜</button>
+      </div>
+      <span class="spacer"></span>
+      <span class="panel-sub" id="flow-updated">--</span>
+    </div>
+    <div class="panel-body">
+      <div class="hbar" id="flow-chart">
+        <div class="empty">正在加载…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 板块 3：涨跌幅排行 ============ -->
+  <section class="panel span-6">
+    <div class="panel-head">
+      <span class="panel-title">板块涨跌幅</span>
+      <div class="tabs" id="change-type"></div>
+      <div class="tabs" id="change-dir">
+        <button data-dir="1" class="active">涨幅榜</button>
+        <button data-dir="0">跌幅榜</button>
+      </div>
+      <span class="spacer"></span>
+      <span class="panel-sub" id="change-updated">--</span>
+    </div>
+    <div class="panel-body">
+      <div class="hbar" id="change-chart">
+        <div class="empty">正在加载…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 板块 4：财经快讯 ============ -->
+  <section class="panel span-4">
+    <div class="panel-head">
+      <span class="panel-title">财经快讯 7×24</span>
+      <span class="spacer"></span>
+      <span class="panel-sub" id="news-updated">--</span>
+    </div>
+    <div class="panel-body" style="max-height:560px">
+      <ul class="news-list" id="news-list">
+        <div class="empty">正在加载快讯…</div>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ 板块 5：自选股 ============ -->
+  <section class="panel span-4">
+    <div class="panel-head">
+      <span class="panel-title">自选股</span>
+      <span class="panel-sub">本地保存，刷新不丢</span>
+    </div>
+    <div class="panel-body" style="max-height:560px">
+      <div class="watch-form">
+        <input id="watch-input" placeholder="输入代码，如 600519 / 00700 / AAPL" autocomplete="off">
+        <button class="btn" id="watch-add">添加</button>
+      </div>
+      <div id="watch-list">
+        <div class="empty">正在加载…</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 板块 6：预留扩展位 ============ -->
+  <section class="panel span-4">
+    <div class="panel-head">
+      <span class="panel-title">可扩展位</span>
+      <span class="panel-sub">后续按需接入</span>
+    </div>
+    <div class="panel-body" style="max-height:560px">
+      <ul class="todo-list">
+        <li><s>指数 / 个股 K 线与分时详情</s> <span class="done-tag">已实现</span></li>
+        <li>涨跌家数分布（市场情绪温度计）</li>
+        <li>涨停 / 跌停池与连板天梯</li>
+        <li>北向资金、两融余额</li>
+        <li>个股龙虎榜、大宗交易</li>
+        <li>汇率 / 大宗商品 / 加密货币</li>
+        <li>财报日历、经济数据日历</li>
+      </ul>
+      <p class="panel-sub" style="margin-top:10px">
+        新增一个板块只需三步：在 <code>index.html</code> 加一个 <code>section.panel</code>，
+        在 <code>app.js</code> 加一个 <code>renderXxx()</code>，
+        需要新接口时在 <code>datasource.js</code> 补一个请求函数。
+        指数清单、板块类型、刷新频率都在 <code>config.js</code>。
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ 指数 / 个股详情（点击指数卡片打开） ============ -->
+<div class="detail-overlay" id="detail" hidden>
+  <div class="detail-panel">
+    <div class="detail-head">
+      <div class="dh-title">
+        <h2 id="d-name">--</h2>
+        <span class="dh-code" id="d-code">--</span>
+      </div>
+      <div class="dh-price" id="d-price">--</div>
+      <div class="dh-chg" id="d-chg">--</div>
+      <div class="tabs" id="d-period"></div>
+      <button class="btn dh-close" id="d-close">关闭</button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-chart" id="d-chart">
+        <div class="empty">加载中…</div>
+      </div>
+      <aside class="detail-stats" id="d-stats"></aside>
+    </div>
+  </div>
+</div>
+
+<p class="footnote">
+  数据来源：东方财富（主）/ 腾讯财经（备）/ 新浪财经 7×24。本页仅供个人研究参考，不构成任何投资建议。
+</p>
+
+<script src="assets/js/config.js"></script>
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/datasource.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/drag-layout.js"></script>
+</body>
+</html>
