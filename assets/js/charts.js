@@ -357,7 +357,7 @@
           ' stroke-width="0.8" stroke-dasharray="3 3" style="display:none"/>' +
         '<line class="cv-cross-h" x1="' + CV.left + '" y1="0" x2="' + CV.right + '" y2="0"' +
           ' stroke="rgba(255,255,255,0.35)" stroke-width="0.8" stroke-dasharray="3 3" style="display:none"/>' +
-        '<text class="cv-cross-h-label" x="' + CV.label + '" y="0" style="display:none"></text>' +
+        '<text class="cv-cross-h-label" x="' + (CV.right - 2) + '" y="0" text-anchor="end" style="display:none"></text>' +
       '</svg>' +
       '<div class="chart-tip" style="display:none"></div>';
 
@@ -580,7 +580,7 @@
         '" stroke="rgba(255,255,255,0.35)" stroke-width="0.8" stroke-dasharray="3 3" style="display:none"/>' +
         '<line class="cv-cross-h" x1="' + CV.left + '" y1="0" x2="' + CV.right + '" y2="0"' +
         ' stroke="rgba(255,255,255,0.35)" stroke-width="0.8" stroke-dasharray="3 3" style="display:none"/>' +
-        '<text class="cv-cross-h-label" x="' + CV.label + '" y="0" style="display:none"></text>' +
+        '<text class="cv-cross-h-label" x="' + (CV.right - 2) + '" y="0" text-anchor="end" style="display:none"></text>' +
       '</svg>' +
       '<div class="chart-tip" style="display:none"></div>';
 
