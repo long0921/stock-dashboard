@@ -197,19 +197,8 @@
     const TICK_Y = hasFlow ? 412 : CV_IT.tickY;
 
     const n = klines.length;
-    // 全量极值（Y 轴不随缩放变）
-    const rangeHigh = Math.max.apply(null, klines.map((k) => k.high));
-    const rangeLow = Math.min.apply(null, klines.map((k) => k.low));
-    const lows = klines.map((k) => k.low);
-    const highs = klines.map((k) => k.high);
     const mas = (opts.ma || [5, 10, 20]).map((p) => ({ period: p, data: maSeries(klines, p) }));
-    mas.forEach((m) => { m.data.forEach((v) => { if (v !== null) { lows.push(v); highs.push(v); } }); });
-    let min = Math.min.apply(null, lows);
-    let max = Math.max.apply(null, highs);
-    const pad = (max - min) * 0.06 || 1;
-    min -= pad; max += pad;
-
-    const y = svgScale(min, max, CV_MAIN.top, CV_MAIN.bottom);
+    let min = 0, max = 100, y = null;
     const maxVol = Math.max.apply(null, klines.map((k) => k.volume || 0)) || 1;
     const maxFlow = Math.max.apply(null, flows.map((f) => Math.abs(f.main || 0))) || 1;
     const flowMid = (CV_FLOW.top + CV_FLOW.bottom) / 2;
@@ -218,11 +207,11 @@
 
     // ---- 视口状态 ----
     const view = {
-      count: Math.min(120, n),       // 可视根数
-      start: Math.max(0, n - 120)    // 起始索引
+      count: Math.min(120, n),
+      start: Math.max(0, n - 120)
     };
 
-    // 根据 view.start / view.count 动态画数据层
+    // 根据 view.start / view.count 动态画数据层（Y 轴随可视窗口自适应，放大波动）
     function renderData() {
       const s = view.start;
       const c = view.count;
@@ -230,6 +219,20 @@
       const cx = (i) => CV.left + i * bw + bw / 2;
       const end = Math.min(n, s + c);
       const visibleN = end - s;
+
+      // 按可视窗口算 min/max，padding 收紧到 3%
+      let vmin = Infinity, vmax = -Infinity;
+      for (let i = s; i < end; i++) {
+        if (klines[i].low < vmin) vmin = klines[i].low;
+        if (klines[i].high > vmax) vmax = klines[i].high;
+        for (let mi = 0; mi < mas.length; mi++) {
+          const v = mas[mi].data[i];
+          if (v !== null) { if (v < vmin) vmin = v; if (v > vmax) vmax = v; }
+        }
+      }
+      const pad = (vmax - vmin) * 0.03 || 1;
+      min = vmin - pad; max = vmax + pad;
+      y = svgScale(min, max, CV_MAIN.top, CV_MAIN.bottom);
 
       let body = '';
       for (let i = s; i < end; i++) {
@@ -311,23 +314,26 @@
 
       const g = container.querySelector('.cv-data');
       if (g) g.innerHTML = body + maPaths + volBars + volMa + flowBars + dateTicks + lastMark;
+      // 价格刻度随可视窗口重画
+      let t = '';
+      for (let i = 0; i <= 4; i++) {
+        const v = min + (max - min) * (i / 4);
+        const yy = y(v);
+        t += '<line x1="' + CV.left + '" y1="' + yy.toFixed(1) + '" x2="' + CV.right +
+          '" y2="' + yy.toFixed(1) + '" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/>';
+        t += '<text class="cv-tick" x="' + (CV.right + 6) + '" y="' + (yy + 3.5).toFixed(1) + '">' + fmtNum(v) + '</text>';
+      }
+      const gt = container.querySelector('.cv-ticks');
+      if (gt) gt.innerHTML = t;
       return { bw: bw, cx: cx, s: s, end: end };
-    }
-
-    // 价格刻度（静态）
-    let ticks = '';
-    for (let i = 0; i <= 4; i++) {
-      const v = min + (max - min) * (i / 4);
-      const yy = y(v);
-      ticks += '<line x1="' + CV.left + '" y1="' + yy.toFixed(1) + '" x2="' + CV.right +
-        '" y2="' + yy.toFixed(1) + '" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/>';
-      ticks += '<text class="cv-tick" x="' + CV.label + '" y="' + (yy + 3.5).toFixed(1) + '">' + fmtNum(v) + '</text>';
     }
 
     const legend = (opts.ma || []).map((p, i) =>
       '<span class="lg" style="color:' + MA_COLORS[i % 3] + '">MA' + p + '</span>').join('');
 
     const firstK = klines[0];
+    const rangeHigh = Math.max.apply(null, klines.map((k) => k.high));
+    const rangeLow = Math.min.apply(null, klines.map((k) => k.low));
     const base = firstK.close || firstK.open || 1;
     const rangePct = (lastK.close - base) / base * 100;
     const sumAmount = klines.reduce((s, k) => s + (k.amount || 0), 0);
@@ -350,7 +356,7 @@
         '</div>' + rangeStrip +
       '</div>' +
       '<svg class="cv-svg" viewBox="0 0 ' + CV.W + ' ' + CV_H + '" preserveAspectRatio="none">' +
-        ticks +
+        '<g class="cv-ticks"></g>' +
         '<g class="cv-data"></g>' +
         '<line class="cv-cross" x1="0" y1="' + CV_MAIN.top + '" x2="0" y2="' +
           (hasFlow ? CV_FLOW.bottom : CV_VOL.bottom) + '" stroke="rgba(255,255,255,0.35)"' +
@@ -409,6 +415,8 @@
         const pct = (priceAtY - lastClose) / lastClose * 100;
         const cls = pct >= 0 ? 'up' : 'down';
         crossHLabel.setAttribute('y', vy + 3.5);
+        crossHLabel.setAttribute('x', vx + 6);
+        crossHLabel.setAttribute('text-anchor', 'start');
         crossHLabel.setAttribute('class', 'cv-cross-h-label ' + cls);
         crossHLabel.textContent = fmtNum(priceAtY) + '  ' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
         crossHLabel.style.display = '';
@@ -631,6 +639,8 @@
         const pctVsLast = lastP ? (priceAtY - lastP) / lastP * 100 : 0;
         const cls = pctVsLast >= 0 ? 'up' : 'down';
         crossHLabel.setAttribute('y', vy + 3.5);
+        crossHLabel.setAttribute('x', vx + 6);
+        crossHLabel.setAttribute('text-anchor', 'start');
         crossHLabel.setAttribute('class', 'cv-cross-h-label ' + cls);
         crossHLabel.textContent = fmtNum(priceAtY) + '  ' + (pctVsLast >= 0 ? '+' : '') + pctVsLast.toFixed(2) + '%';
         crossHLabel.style.display = '';

@@ -439,7 +439,7 @@
   /* ==========================================================================
    * 详情面板：K 线 / 分时 / 成交量 / 资金流 / 关键数据
    * ========================================================================== */
-  const detail = { secid: null, name: null, period: 'd', busy: false, lastChartAt: 0 };
+  const detail = { secid: null, name: null, period: 'trend', busy: false, lastChartAt: 0 };
 
   function periodById(id) {
     return CFG.periods.filter((p) => p.id === id)[0] || CFG.periods[1];
@@ -456,7 +456,7 @@
   function openDetail(secid, name) {
     detail.secid = secid;
     detail.name = name || secid;
-    detail.period = 'd';
+    detail.period = 'trend';
     $('#d-name').textContent = detail.name;
     $('#d-code').textContent = secid;
     $('#detail').hidden = false;

@@ -610,7 +610,7 @@ a:hover { text-decoration: underline; }
 }
 
 /* 图表本体 */
-.cv-svg { width: 100%; height: auto; display: block; }
+.cv-svg { width: 100%; height: auto; display: block; cursor: crosshair; user-select: none; -webkit-user-select: none; }
 .cv-tick { font-size: 10px; fill: var(--muted); font-variant-numeric: tabular-nums; }
 .cv-tick.up { fill: var(--up); }
 .cv-tick.down { fill: var(--down); }
