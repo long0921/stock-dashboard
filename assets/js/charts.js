@@ -415,8 +415,8 @@
         const pct = (priceAtY - lastClose) / lastClose * 100;
         const cls = pct >= 0 ? 'up' : 'down';
         crossHLabel.setAttribute('y', vy + 3.5);
-        crossHLabel.setAttribute('x', vx + 6);
-        crossHLabel.setAttribute('text-anchor', 'start');
+        crossHLabel.setAttribute('x', CV.right - 2);
+        crossHLabel.setAttribute('text-anchor', 'end');
         crossHLabel.setAttribute('class', 'cv-cross-h-label ' + cls);
         crossHLabel.textContent = fmtNum(priceAtY) + '  ' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
         crossHLabel.style.display = '';
@@ -639,8 +639,8 @@
         const pctVsLast = lastP ? (priceAtY - lastP) / lastP * 100 : 0;
         const cls = pctVsLast >= 0 ? 'up' : 'down';
         crossHLabel.setAttribute('y', vy + 3.5);
-        crossHLabel.setAttribute('x', vx + 6);
-        crossHLabel.setAttribute('text-anchor', 'start');
+        crossHLabel.setAttribute('x', CV.right - 2);
+        crossHLabel.setAttribute('text-anchor', 'end');
         crossHLabel.setAttribute('class', 'cv-cross-h-label ' + cls);
         crossHLabel.textContent = fmtNum(priceAtY) + '  ' + (pctVsLast >= 0 ? '+' : '') + pctVsLast.toFixed(2) + '%';
         crossHLabel.style.display = '';
