@@ -392,7 +392,7 @@
       const k = klines[i];
       tip.innerHTML = tooltipHtml(k, flowMap[k.date], hasFlow);
       tip.style.display = 'block';
-      if (vx > CV.W / 2) { tip.style.left = '6px'; } else { tip.style.left = (rect.width - 158) + 'px'; }
+      if (vx > CV.W / 2) { tip.style.left = '6px'; } else { tip.style.left = (rect.width - 248) + 'px'; }
       tip.style.top = '10px';
       if (cross) {
         cross.setAttribute('x1', m.cx(i));
@@ -611,7 +611,7 @@
       if (vx > CV.W / 2) {
         tip.style.left = '6px';
       } else {
-        tip.style.left = (rect.width - 158) + 'px';
+        tip.style.left = (rect.width - 248) + 'px';
       }
       tip.style.top = '10px';
       if (cross) {
