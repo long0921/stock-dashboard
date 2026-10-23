@@ -332,10 +332,12 @@
       '<span class="lg" style="color:' + MA_COLORS[i % 3] + '">MA' + p + '</span>').join('');
 
     const firstK = klines[0];
-    const rangeHigh = Math.max.apply(null, klines.map((k) => k.high));
-    const rangeLow = Math.min.apply(null, klines.map((k) => k.low));
-    const base = firstK.close || firstK.open || 1;
-    const rangePct = (lastK.close - base) / base * 100;
+    // 过滤异常K线（早期数据可能有0值/负值），再算全量极值
+    const validK = klines.filter((k) => k.high > 0 && k.low > 0 && k.close > 0);
+    const rangeHigh = validK.length ? Math.max.apply(null, validK.map((k) => k.high)) : 0;
+    const rangeLow = validK.length ? Math.min.apply(null, validK.map((k) => k.low)) : 0;
+    const base = (validK.length ? validK[0].close : lastK.close) || 1;
+    const rangePct = base > 0 ? (lastK.close - base) / base * 100 : 0;
     const sumAmount = klines.reduce((s, k) => s + (k.amount || 0), 0);
     const sumFlow = flows.reduce((s, f) => s + (f.main || 0), 0);
     let rangeStrip = '<div class="cv-range">' +
