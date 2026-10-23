@@ -566,9 +566,9 @@
   function chartGap() {
     const p = periodById(detail.period);
     const klt = p ? p.klt : 101;
-    if (klt === 0) return 5000;       // 分时：5 秒
+    if (klt === 0) return 3000;       // 分时：3 秒
     if (klt < 100) return 15000;     // 5/15/30/60 分钟 K：15 秒
-    return 15000;                    // 日 / 周 / 月 K：15 秒（详情开着时频繁重绘）
+    return 15000;                    // 日 / 周 / 月 K：15 秒
   }
 
   /* ==========================================================================
@@ -592,9 +592,9 @@
   function schedule() {
     clearTimeout(state.timer);
     let interval = anyMarketOpen() ? CFG.refresh.trading : CFG.refresh.closed;
-    // 详情弹窗开着时，强制缩短刷新间隔，避免用户感觉"不刷新"
+    // 详情弹窗开着时，盘后强制2分钟刷一次，交易时段保持5秒
     const overlay = $('#detail');
-    if (overlay && !overlay.hidden && detail.secid) interval = Math.min(interval, 15000);
+    if (overlay && !overlay.hidden && detail.secid) interval = Math.min(interval, anyMarketOpen() ? 5000 : 120000);
     state.countdown = Math.round(interval / 1000);
     updateCountdown();
     state.timer = setInterval(() => {

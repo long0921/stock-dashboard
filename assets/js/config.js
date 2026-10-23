@@ -28,7 +28,7 @@ window.DASH_CONFIG = {
     // 东方财富：排行列表（板块、个股）
     emRank: 'https://push2.eastmoney.com/api/qt/clist/get',
     // 东方财富：分时数据（迷你走势图 / 当日分时图）
-    emTrends: 'https://push2his.eastmoney.com/api/qt/stock/trends2/get',
+    emTrends: 'https://push2.eastmoney.com/api/qt/stock/trends2/get',
     // 东方财富：K 线（klt 101=日 102=周 103=月 5/15/30/60=分钟）
     emKline: 'https://push2his.eastmoney.com/api/qt/stock/kline/get',
     // 东方财富：资金流历史（主力 / 超大单 / 大单 / 中单 / 小单）
