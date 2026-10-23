@@ -198,7 +198,8 @@
 
     const n = klines.length;
     const mas = (opts.ma || [5, 10, 20]).map((p) => ({ period: p, data: maSeries(klines, p) }));
-    let min = 0, max = 100, y = null;
+    const axis = { min: 0, max: 100 };
+    let y = null;
     const maxVol = Math.max.apply(null, klines.map((k) => k.volume || 0)) || 1;
     const maxFlow = Math.max.apply(null, flows.map((f) => Math.abs(f.main || 0))) || 1;
     const flowMid = (CV_FLOW.top + CV_FLOW.bottom) / 2;
@@ -231,8 +232,8 @@
         }
       }
       const pad = (vmax - vmin) * 0.03 || 1;
-      min = vmin - pad; max = vmax + pad;
-      y = svgScale(min, max, CV_MAIN.top, CV_MAIN.bottom);
+      axis.min = vmin - pad; axis.max = vmax + pad;
+      y = svgScale(axis.min, axis.max, CV_MAIN.top, CV_MAIN.bottom);
 
       let body = '';
       for (let i = s; i < end; i++) {
@@ -317,7 +318,7 @@
       // 价格刻度随可视窗口重画
       let t = '';
       for (let i = 0; i <= 4; i++) {
-        const v = min + (max - min) * (i / 4);
+        const v = axis.min + (axis.max - axis.min) * (i / 4);
         const yy = y(v);
         t += '<line x1="' + CV.left + '" y1="' + yy.toFixed(1) + '" x2="' + CV.right +
           '" y2="' + yy.toFixed(1) + '" stroke="rgba(255,255,255,0.07)" stroke-width="0.6"/>';
@@ -370,10 +371,10 @@
       '<div class="chart-tip" style="display:none"></div>';
 
     renderData();
-    bindCrosshair(container, klines, flows, hasFlow, view, renderData, min, max, CV_MAIN.top, CV_MAIN.bottom, lastK.close);
+    bindCrosshair(container, klines, flows, hasFlow, view, renderData, axis, CV_MAIN.top, CV_MAIN.bottom, lastK.close);
   }
 
-  function bindCrosshair(container, klines, flows, hasFlow, view, renderData, pMin, pMax, top, bottom, lastClose) {
+  function bindCrosshair(container, klines, flows, hasFlow, view, renderData, axis, top, bottom, lastClose) {
     const svg = container.querySelector('.cv-svg');
     const tip = container.querySelector('.chart-tip');
     const cross = container.querySelector('.cv-cross');
@@ -382,7 +383,7 @@
     if (!svg || !tip) return;
     const flowMap = {};
     flows.forEach((f) => { flowMap[f.date] = f; });
-    const priceAt = (vy) => pMax - (vy - top) / (bottom - top) * (pMax - pMin);
+    const priceAt = (vy) => axis.max - (vy - top) / (bottom - top) * (axis.max - axis.min);
 
     function metrics() {
       const c = view.count;
