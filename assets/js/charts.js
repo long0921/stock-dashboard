@@ -206,8 +206,11 @@
     const lastK = klines[n - 1];
     const lastCol = lastK.close >= lastK.open ? '#ff4d4f' : '#12b886';
 
-    // ---- 视口状态 ----
-    const view = {
+    // ---- 视口状态（保留上次的缩放/平移） ----
+    const view = (opts.view && n > 0) ? {
+      count: Math.max(20, Math.min(opts.view.count || 120, n)),
+      start: Math.max(0, Math.min(opts.view.start || Math.max(0, n - 120), n - 20))
+    } : {
       count: Math.min(120, n),
       start: Math.max(0, n - 120)
     };
@@ -372,6 +375,7 @@
 
     renderData();
     bindCrosshair(container, klines, flows, hasFlow, view, renderData, axis, CV_MAIN.top, CV_MAIN.bottom, lastK.close);
+    return view;
   }
 
   function bindCrosshair(container, klines, flows, hasFlow, view, renderData, axis, top, bottom, lastClose) {

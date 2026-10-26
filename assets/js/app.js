@@ -457,6 +457,7 @@
     detail.secid = secid;
     detail.name = name || secid;
     detail.period = 'trend';
+    detail.view = null;
     $('#d-name').textContent = detail.name;
     $('#d-code').textContent = secid;
     $('#detail').hidden = false;
@@ -555,8 +556,9 @@
         safe(DS.fetchKline(detail.secid, p.klt, CFG.klineLimit), []),
         safe(DS.fetchFlow(detail.secid, p.klt, CFG.klineLimit), [])
       ]);
-      if (kl && kl.length) C.candlestick(box, kl, { flows: fl || [], ma: CFG.klineMa });
-      else panelError(box, 'K 线数据暂不可用（东财 / 腾讯历史行情均无法访问）');
+      if (kl && kl.length) {
+        detail.view = C.candlestick(box, kl, { flows: fl || [], ma: CFG.klineMa, view: detail.view });
+      } else panelError(box, 'K 线数据暂不可用（东财 / 腾讯历史行情均无法访问）');
     }
     detail.busy = false;
     detail.lastChartAt = Date.now();
@@ -734,6 +736,7 @@
     // 周期切换
     bindTabs('#d-period', 'data-period', (v) => {
       detail.period = v;
+      detail.view = null;
       Array.prototype.forEach.call(document.querySelectorAll('#d-period [data-period]'), (b) => {
         b.classList.toggle('active', b.getAttribute('data-period') === v);
       });
