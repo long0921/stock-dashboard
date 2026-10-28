@@ -859,29 +859,30 @@
     const box = $('#breadth-box');
     if (!box) return;
     const b = await safe(DS.fetchMarketBreadth(), null);
-    if (!b) { box.innerHTML = '<div class="empty">数据暂不可用</div>'; return; }
+    if (!b || (!b.up && !b.down)) { box.innerHTML = '<div class="empty">数据暂不可用</div>'; return; }
     const total = b.up + b.down + b.flat;
-    const upPct = total ? (b.up / total * 100) : 0;
-    const downPct = total ? (b.down / total * 100) : 0;
+    const upPct = total ? (b.up / total * 100) : 50;
+    const downPct = total ? (b.down / total * 100) : 50;
     const flatPct = total ? (b.flat / total * 100) : 0;
+    const score = upPct;
+    const color = score >= 70 ? '#ff4d4f' : score >= 55 ? '#ff9f43' : score >= 45 ? '#f2d444' : score >= 30 ? '#4cd964' : '#12b886';
     box.innerHTML =
-      '<div style="font-size:28px;font-weight:700;text-align:center;margin:8px 0">' +
-        '<span style="color:var(--up)">' + b.up + '</span>' +
-        '<span style="color:var(--muted);font-size:16px;margin:0 8px">涨</span>' +
-        '<span style="color:var(--down)">' + b.down + '</span>' +
-        '<span style="color:var(--muted);font-size:16px;margin:0 8px">跌</span>' +
-        '<span style="color:var(--text)">' + b.flat + '</span>' +
-        '<span style="color:var(--muted);font-size:16px;margin-left:8px">平</span>' +
+      '<div style="text-align:center;margin-bottom:4px">' +
+        '<span style="font-size:30px;font-weight:700;color:' + color + '">' + score.toFixed(0) + '</span>' +
+        '<span style="color:var(--muted);font-size:12px;margin-left:6px">/100 情绪温度</span>' +
       '</div>' +
-      '<div style="display:flex;height:18px;border-radius:4px;overflow:hidden;margin:8px 0">' +
+      '<div style="height:10px;border-radius:5px;background:linear-gradient(to right,#12b886,#f2d444,#ff9f43,#ff4d4f);position:relative;margin:10px 0 6px">' +
+        '<div style="position:absolute;left:calc(' + score + '% - 6px);top:-4px;width:12px;height:18px;background:#fff;border-radius:3px;box-shadow:0 0 4px rgba(0,0,0,0.5)"></div>' +
+      '</div>' +
+      '<div style="display:flex;height:14px;border-radius:3px;overflow:hidden;margin:4px 0">' +
         '<div style="width:' + upPct + '%;background:var(--up)"></div>' +
         '<div style="width:' + flatPct + '%;background:#888"></div>' +
         '<div style="width:' + downPct + '%;background:var(--down)"></div>' +
       '</div>' +
-      '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)">' +
-        '<span>上涨 ' + upPct.toFixed(1) + '%</span>' +
-        '<span>平盘 ' + flatPct.toFixed(1) + '%</span>' +
-        '<span>下跌 ' + downPct.toFixed(1) + '%</span>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;text-align:center;font-size:12px;margin-top:4px">' +
+        '<div><b style="color:var(--up);font-size:15px">' + b.up + '</b><div style="color:var(--muted)">上涨</div></div>' +
+        '<div><b style="color:#aaa;font-size:15px">' + b.flat + '</b><div style="color:var(--muted)">平盘</div></div>' +
+        '<div><b style="color:var(--down);font-size:15px">' + b.down + '</b><div style="color:var(--muted)">下跌</div></div>' +
       '</div>';
   }
 

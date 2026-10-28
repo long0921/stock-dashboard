@@ -755,13 +755,12 @@
   /* ---------------- 汇率/大宗/加密货币（用全球指数接口） ---------------- */
   async function fetchForexCommodity() {
     const list = [
-      { secid: '100.USDX', name: '美元指数' },
+      { secid: '100.UDI', name: '美元指数' },
       { secid: '119.USDCNH', name: '美元/离岸人民币' },
       { secid: '100.GC00Y', name: 'COMEX黄金' },
-      { secid: '100.SI00Y', name: 'COMEX白银' },
       { secid: '100.CL00Y', name: 'WTI原油' },
-      { secid: '100.BTCOIN', name: '比特币' },
-      { secid: '100.ETHON', name: '以太坊' }
+      { secid: '100.BTCUSD', name: '比特币/美元' },
+      { secid: '100.ETHUSD', name: '以太坊/美元' }
     ];
     return await fetchQuotes(list);
   }
