@@ -724,6 +724,51 @@
     return out;
   }
 
+  /* ---------------- 涨跌家数 / 市场情绪 ---------------- */
+  async function fetchMarketBreadth() {
+    // 东财市场总貌：上涨/下跌/平盘/涨停/跌停家数
+    const query = 'fields1=f1,f2,f3,f4,f5,f6,f7,f8,f9,f10,f11&fields2=f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61,f62,f63,f64,f65&secids=1.000001,0.399001,0.399006&ut=fa5fd1943c7b386f172d6893dbfba10b';
+    try {
+      const res = await jsonpAnywhere(
+        hostsFor(CFG.endpoints.emQuote, EM_HOSTS),
+        pathOf(CFG.endpoints.emQuote), query, 5000);
+      const rows = (res && res.data && res.data.diff) || [];
+      let up = 0, down = 0, flat = 0, limitUp = 0, limitDown = 0;
+      rows.forEach((r) => {
+        up += num(r.f104) || 0;
+        down += num(r.f105) || 0;
+        flat += num(r.f106) || 0;
+      });
+      return { up: up, down: down, flat: flat, limitUp: limitUp, limitDown: limitDown };
+    } catch (e) { return null; }
+  }
+
+  /* ---------------- 北向资金 ---------------- */
+  async function fetchNorthbound() {
+    const query = 'fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55,f56,f57,f58&ut=1b2d4a8a9b0e9e6b4b4b4b4b4b4b4b4';
+    try {
+      const res = await jsonpAnywhere(
+        hostsFor(CFG.endpoints.emQuote, EM_HOSTS),
+        pathOf(CFG.endpoints.emQuote) + '/kamt', query, 5000);
+      return res && res.data ? res.data : null;
+    } catch (e) { return null; }
+  }
+
+  /* ---------------- 汇率/大宗/加密货币（用全球指数接口） ---------------- */
+  async function fetchForexCommodity() {
+    const list = [
+      { secid: '100.USDX', name: '美元指数' },
+      { secid: '119.USDCNH', name: '美元/离岸人民币' },
+      { secid: '100.DXY', name: '美元指数DXY' },
+      { secid: '100.GC00Y', name: 'COMEX黄金' },
+      { secid: '100.SI00Y', name: 'COMEX白银' },
+      { secid: '100.CL00Y', name: 'WTI原油' },
+      { secid: '100.BTCOIN', name: '比特币' },
+      { secid: '100.ETHON', name: '以太坊' }
+    ];
+    return await fetchQuotes(list);
+  }
+
   /* ---------------- 导出 ---------------- */
   window.DataSource = {
     fetchQuotes: fetchQuotes,
@@ -732,6 +777,9 @@
     fetchKline: fetchKline,
     fetchFlow: fetchFlow,
     fetchNews: fetchNews,
+    fetchMarketBreadth: fetchMarketBreadth,
+    fetchNorthbound: fetchNorthbound,
+    fetchForexCommodity: fetchForexCommodity,
     demoRank: demoRank,
     testNodes: testNodes,
     onHealth: function (fn) { listeners.push(fn); fn(health); },

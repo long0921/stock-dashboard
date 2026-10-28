@@ -628,7 +628,10 @@
     await Promise.all([
       renderIndices(),
       renderRanks(),
-      renderWatchlist()
+      renderWatchlist(),
+      renderBreadth(),
+      renderForex(),
+      renderNorthbound()
     ]);
     state.loading = false;
     $('#last-update').textContent = nowStr();
@@ -849,6 +852,71 @@
     refreshAll();
     renderNews();
     state.newsTimer = setInterval(renderNews, CFG.refresh.news);
+  }
+
+  /* ---------------- 市场情绪温度计 ---------------- */
+  async function renderBreadth() {
+    const box = $('#breadth-box');
+    if (!box) return;
+    const b = await safe(DS.fetchMarketBreadth(), null);
+    if (!b) { box.innerHTML = '<div class="empty">数据暂不可用</div>'; return; }
+    const total = b.up + b.down + b.flat;
+    const upPct = total ? (b.up / total * 100) : 0;
+    const downPct = total ? (b.down / total * 100) : 0;
+    const flatPct = total ? (b.flat / total * 100) : 0;
+    box.innerHTML =
+      '<div style="font-size:28px;font-weight:700;text-align:center;margin:8px 0">' +
+        '<span style="color:var(--up)">' + b.up + '</span>' +
+        '<span style="color:var(--muted);font-size:16px;margin:0 8px">涨</span>' +
+        '<span style="color:var(--down)">' + b.down + '</span>' +
+        '<span style="color:var(--muted);font-size:16px;margin:0 8px">跌</span>' +
+        '<span style="color:var(--text)">' + b.flat + '</span>' +
+        '<span style="color:var(--muted);font-size:16px;margin-left:8px">平</span>' +
+      '</div>' +
+      '<div style="display:flex;height:18px;border-radius:4px;overflow:hidden;margin:8px 0">' +
+        '<div style="width:' + upPct + '%;background:var(--up)"></div>' +
+        '<div style="width:' + flatPct + '%;background:#888"></div>' +
+        '<div style="width:' + downPct + '%;background:var(--down)"></div>' +
+      '</div>' +
+      '<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)">' +
+        '<span>上涨 ' + upPct.toFixed(1) + '%</span>' +
+        '<span>平盘 ' + flatPct.toFixed(1) + '%</span>' +
+        '<span>下跌 ' + downPct.toFixed(1) + '%</span>' +
+      '</div>';
+  }
+
+  /* ---------------- 汇率/大宗/加密 ---------------- */
+  async function renderForex() {
+    const box = $('#forex-box');
+    if (!box) return;
+    const res = await safe(DS.fetchForexCommodity(), null);
+    const rows = res && res.data ? res.data : [];
+    if (!rows.length) { box.innerHTML = '<div class="empty">数据暂不可用</div>'; return; }
+    box.innerHTML = rows.map((q) => {
+      const cls = q.chgPct >= 0 ? 'up' : 'down';
+      return '<div class="watch-row" style="grid-template-columns:2fr 1fr 1fr">' +
+        '<span>' + escapeHtml(q.name) + '</span>' +
+        '<b>' + fmtNum(q.price) + '</b>' +
+        '<span class="' + cls + '">' + fmtPct(q.chgPct) + '</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  /* ---------------- 北向资金 ---------------- */
+  async function renderNorthbound() {
+    const box = $('#north-box');
+    if (!box) return;
+    const d = await safe(DS.fetchNorthbound(), null);
+    if (!d) { box.innerHTML = '<div class="empty">数据暂不可用（收盘后不更新）</div>'; return; }
+    // d 结构复杂，简单展示当日净流入
+    const today = d.data && d.data[0];
+    if (!today) { box.innerHTML = '<div class="empty">今日暂无数据</div>'; return; }
+    const hk = today.hk || 0;
+    box.innerHTML =
+      '<div style="font-size:24px;font-weight:700;text-align:center;margin:10px 0">' +
+        '<span class="' + (hk >= 0 ? 'up' : 'down') + '">' + (hk >= 0 ? '+' : '') + fmtMoney(hk) + '</span>' +
+      '</div>' +
+      '<div style="text-align:center;color:var(--muted);font-size:13px">今日北向净流入</div>';
   }
 
   if (document.readyState === 'loading') {

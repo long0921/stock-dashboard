@@ -112,28 +112,36 @@
     </div>
   </section>
 
-  <!-- ============ 板块 6：预留扩展位 ============ -->
+  <!-- ============ 板块 6：市场情绪温度计 ============ -->
   <section class="panel span-4">
     <div class="panel-head">
-      <span class="panel-title">可扩展位</span>
-      <span class="panel-sub">后续按需接入</span>
+      <span class="panel-title">市场情绪温度计</span>
+      <span class="panel-sub">涨跌家数分布</span>
     </div>
-    <div class="panel-body" style="max-height:560px">
-      <ul class="todo-list">
-        <li><s>指数 / 个股 K 线与分时详情</s> <span class="done-tag">已实现</span></li>
-        <li>涨跌家数分布（市场情绪温度计）</li>
-        <li>涨停 / 跌停池与连板天梯</li>
-        <li>北向资金、两融余额</li>
-        <li>个股龙虎榜、大宗交易</li>
-        <li>汇率 / 大宗商品 / 加密货币</li>
-        <li>财报日历、经济数据日历</li>
-      </ul>
-      <p class="panel-sub" style="margin-top:10px">
-        新增一个板块只需三步：在 <code>index.html</code> 加一个 <code>section.panel</code>，
-        在 <code>app.js</code> 加一个 <code>renderXxx()</code>，
-        需要新接口时在 <code>datasource.js</code> 补一个请求函数。
-        指数清单、板块类型、刷新频率都在 <code>config.js</code>。
-      </p>
+    <div class="panel-body" style="max-height:260px">
+      <div id="breadth-box"><div class="empty">加载中…</div></div>
+    </div>
+  </section>
+
+  <!-- ============ 板块 7：汇率/大宗/加密 ============ -->
+  <section class="panel span-4">
+    <div class="panel-head">
+      <span class="panel-title">汇率 / 大宗 / 加密</span>
+      <span class="panel-sub">美元·黄金·原油·比特币</span>
+    </div>
+    <div class="panel-body" style="max-height:260px">
+      <div id="forex-box"><div class="empty">加载中…</div></div>
+    </div>
+  </section>
+
+  <!-- ============ 板块 8：北向资金 ============ -->
+  <section class="panel span-4">
+    <div class="panel-head">
+      <span class="panel-title">北向资金</span>
+      <span class="panel-sub">沪股通+深股通</span>
+    </div>
+    <div class="panel-body" style="max-height:260px">
+      <div id="north-box"><div class="empty">加载中…</div></div>
     </div>
   </section>
 
