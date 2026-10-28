@@ -894,11 +894,12 @@
     const rows = res && res.data ? res.data : [];
     if (!rows.length) { box.innerHTML = '<div class="empty">数据暂不可用</div>'; return; }
     box.innerHTML = rows.map((q) => {
-      const cls = q.chgPct >= 0 ? 'up' : 'down';
+      const pct = q.pct || 0;
+      const cls = pct >= 0 ? 'up' : 'down';
       return '<div class="watch-row" style="grid-template-columns:2fr 1fr 1fr">' +
         '<span>' + escapeHtml(q.name) + '</span>' +
         '<b>' + fmtNum(q.price) + '</b>' +
-        '<span class="' + cls + '">' + fmtPct(q.chgPct) + '</span>' +
+        '<span class="' + cls + '">' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%</span>' +
       '</div>';
     }).join('');
   }
