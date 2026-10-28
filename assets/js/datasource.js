@@ -755,17 +755,26 @@
     } catch (e) { return null; }
   }
 
-  /* ---------------- 汇率/大宗/加密货币（用全球指数接口） ---------------- */
+  /* ---------------- 汇率/大宗/加密（腾讯行情） ---------------- */
   async function fetchForexCommodity() {
-    const list = [
-      { secid: '100.UDI', name: '美元指数' },
-      { secid: '119.USDCNH', name: '美元/离岸人民币' },
-      { secid: '100.GC00Y', name: 'COMEX黄金' },
-      { secid: '100.CL00Y', name: 'WTI原油' },
-      { secid: '100.BTCUSD', name: '比特币/美元' },
-      { secid: '100.ETHUSD', name: '以太坊/美元' }
+    const items = [
+      { code: 'hf_GC', name: 'COMEX黄金' },
+      { code: 'hf_SI', name: 'COMEX白银' },
+      { code: 'hf_CL', name: 'WTI原油' },
+      { code: 'whUDI', name: '美元指数' },
+      { code: 'whUSDCNH', name: '美元/离岸人民币' }
     ];
-    return await fetchQuotes(list);
+    const codes = items.map((i) => i.code).join(',');
+    try {
+      const res = await loadTxVar(CFG.endpoints.txQuote + '?s=' + codes, 6000);
+      const out = items.map((i) => {
+        const d = res.data && res.data[i.code];
+        if (!d) return null;
+        const parts = String(d).split('~');
+        return { secid: i.code, name: i.name, price: num(parts[3]), pct: num(parts[32]) };
+      }).filter(Boolean);
+      return { data: out };
+    } catch (e) { return { data: [] }; }
   }
 
   /* ---------------- 导出 ---------------- */
