@@ -31,11 +31,14 @@
    */
   const EM_HOSTS = [
     'https://push2.eastmoney.com',
+    'https://1.push2.eastmoney.com',
+    'https://2.push2.eastmoney.com',
     'https://82.push2.eastmoney.com',
     'https://push2delay.eastmoney.com'
   ];
   const EM_HIS_HOSTS = [
     'https://push2his.eastmoney.com',
+    'https://1.push2his.eastmoney.com',
     'https://41.push2his.eastmoney.com'
   ];
 
